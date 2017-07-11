@@ -2,9 +2,9 @@ import json
 import requests
 import os
 import time
-from urllib.parse import urlparse
+import urllib.parse
 
-TOKEN = os.environ["TGBOT_TOKEN"] 
+TOKEN = os.environ["NUMPTYBOT_TOKEN"] 
 URL = "https://api.telegram.org/bot{}/".format(TOKEN)
 
 def get_url(url):
@@ -32,7 +32,7 @@ def get_last_chat_id_and_text(updates):
     return (text, chat_id)
 
 def send_message(text, chat_id):
-    text = urlparse.quote_plus(text)
+    text = urllib.parse.quote_plus(text)
     url = URL + "sendMessage?text={}&chat_id={}".format(text, chat_id)
     get_url(url)
 
