@@ -6,7 +6,7 @@ import urllib.parse
 from dbhelper import DBHelper
 
 db = DBHelper()
-TOKEN = os.environ["NUMPTYBOT_TOKEN"] 
+TOKEN = os.environ["BOT_TOKEN"] 
 URL = "https://api.telegram.org/bot{}/".format(TOKEN)
 
 def get_url(url):
