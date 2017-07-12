@@ -19,7 +19,7 @@ class DBHelper:
     def delete_item(self, item_text):
         stmt = "DELETE FROM items WHERE description = (?)"
         args = (item_text, )
-        self.conn.execute(smtm, args)
+        self.conn.execute(stmt, args)
         self.conn.commit()
 
     def get_items(self):

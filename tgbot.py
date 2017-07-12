@@ -33,10 +33,13 @@ def get_last_chat_id_and_text(updates):
     chat_id = updates["result"][last_update]["message"]["chat"]["id"]
     return (text, chat_id)
 
-def send_message(text, chat_id):
+def send_message(text, chat_id, reply_markup=None):
     text = urllib.parse.quote_plus(text)
-    url = URL + "sendMessage?text={}&chat_id={}".format(text, chat_id)
+    url = URL + "sendMessage?text={}&chat_id={}&parse_mode=Markdown".format(text, chat_id)
+    if reply_markup:
+        url += "&reply_markup={}".format(reply_markup)
     get_url(url)
+
 
 def get_last_update_id(updates):
     update_ids = []
@@ -51,16 +54,27 @@ def handle_updates(updates):
             chat = update["message"]["chat"]["id"]
             items = db.get_items()
 
-            if text in items:
+            if text =="/done":
+                keyboard = build_keyboard(items)
+                send_message("select an item to delete", chat, keyboard)
+
+            elif text in items:
                 db.delete_item(text)
-                    items = db.get_items()
+                items = db.get_items()
+                keyboard = build_keyboard(items)
+                send_message("Select an item to delete", chat, keyboard)
             else:
                 db.add_item(text)
                 items = db.get_items()
-            message = "\n".join(items)
-            send_message(message, chat=
+                message = "\n".join(items)
+                send_message(message, chat)
         except KeyError:
             pass
+
+def build_keyboard(items):
+    keyboard = [[item] for item in items]
+    reply_markup = {"keyboard":keyboard, "one_time_keyboard": True}
+    return json.dumps(reply_markup)
 
 def main():
     db.setup()
@@ -69,7 +83,7 @@ def main():
         updates = get_updates(last_update_id)
         if len(updates["result"]) > 0:
             last_update_id = get_last_update_id(updates) + 1
-            echo_all(updates)
+            handle_updates(updates)
 
 
 if __name__ == '__main__':
