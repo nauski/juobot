@@ -3,7 +3,9 @@ import requests
 import os
 import time
 import urllib.parse
+from dbhelper import DBHelper
 
+db = DBHelper()
 TOKEN = os.environ["NUMPTYBOT_TOKEN"] 
 URL = "https://api.telegram.org/bot{}/".format(TOKEN)
 
@@ -42,16 +44,26 @@ def get_last_update_id(updates):
         update_ids.append(int(update["update_id"]))
     return max(update_ids)
 
-def echo_all(updates):
+def handle_updates(updates):
     for update in updates["result"]:
         try:
             text = update["message"]["text"]
             chat = update["message"]["chat"]["id"]
-            send_message(text, chat)
-        except Exception as e:
-            print(e)
+            items = db.get_items()
+
+            if text in items:
+                db.delete_item(text)
+                    items = db.get_items()
+            else:
+                db.add_item(text)
+                items = db.get_items()
+            message = "\n".join(items)
+            send_message(message, chat=
+        except KeyError:
+            pass
 
 def main():
+    db.setup()
     last_update_id = None
     while True:
         updates = get_updates(last_update_id)
